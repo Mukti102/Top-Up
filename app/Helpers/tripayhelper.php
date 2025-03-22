@@ -19,19 +19,7 @@ class TripayHelper
         $this->merchanCode = config('tripay.merchant_code');
     }
 
-    private static function generateSignature($amount = null)
-    {
-        $privateKey   = 'ytf6ooi2gmlNPfpchd94jDOk8hRWOu';
-        $merchantCode = 'T0001';
-        $merchantRef  = 'INV55567';
-
-        $signature = hash_hmac('sha256', $merchantCode . $merchantRef . $amount, $privateKey);
-    }
-
-    /**
-     * General request handler using Laravel HTTP Client
-     */
-    private function request($endpoint, $params = [])
+    private function getRequest($endpoint, $params = [])
     {
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $this->apiKey
@@ -42,22 +30,47 @@ class TripayHelper
 
     public function getChannel()
     {
-        return $this->request("payment-channel");
+        return $this->getRequest("merchant/payment-channel");
     }
 
-    public function calculateFee($code = 'QRIS', $amount = 100000)
-    {
-        return $this->request("fee-calculator", [
-            'code' => $code,
-            'amount' => $amount,
-        ]);
-    }
 
-    public function getListTransaction($page = 1, $perPage = 25)
+    public function transaction($method = 'BRIVA', $customer = [], $orderItems = [], $amount = 1000000)
     {
-        return $this->request("transactions", [
-            'page' => $page,
-            'per_page' => $perPage,
-        ]);
+        $merchantRef = "TRX-" . time();
+        $expiredTime = time() + (24 * 60 * 60); // 24 jam
+
+        $data = [
+            'method'         => $method,
+            'merchant_ref'   => $merchantRef,
+            'amount'         => $amount,
+            'customer_name'  => $customer['name'] ?? 'NAMA PELANGGAN',
+            'customer_email' => $customer['email'] ?? 'emailpelanggan@domain.com',
+            'customer_phone' => $customer['phone'] ?? '081234567890',
+            'order_items'    => $orderItems ?: [
+                [
+                    'sku'         => 'FB-06',
+                    'name'        => 'Nama Produk 1',
+                    'price'       => 500000,
+                    'quantity'    => 1,
+                    'product_url' => 'https://tokokamu.com/product/nama-produk-1',
+                    'image_url'   => 'https://tokokamu.com/product/nama-produk-1.jpg',
+                ],
+                [
+                    'sku'         => 'FB-07',
+                    'name'        => 'Nama Produk 2',
+                    'price'       => 500000,
+                    'quantity'    => 1,
+                    'product_url' => 'https://tokokamu.com/product/nama-produk-2',
+                    'image_url'   => 'https://tokokamu.com/product/nama-produk-2.jpg',
+                ]
+            ],
+            'expired_time' => $expiredTime,
+            'signature'    => hash_hmac('sha256', $this->merchanCode . $merchantRef . $amount, $this->privateKey),
+        ];
+
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->apiKey
+        ])->post($this->baseUrl . 'transaction/create', $data);
+        return $response->json();
     }
 }
