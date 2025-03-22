@@ -9,13 +9,10 @@ use Illuminate\Support\Facades\Route;
 Route::get(
     '/',
     function () {
-        $data = [
-            "customer_no" => "1234554321",
-            "testing" => true, //optional
-        ];
-        $testing = new digiflazzRequest();
-        return $testing->cekValidasiPln($data);
-        return view('welcome');
+        return inertia('Home', [
+            'title' => 'Home',
+            'name' => 'John Doe',
+        ]);
     }
 );
 

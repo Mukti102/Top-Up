@@ -12,10 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         // drop froignId In RulesBrands
-        Schema::table('rules_brands', function (Blueprint $table) {
-            $table->dropForeign(['field_input_id']);
-            $table->dropColumn('field_input_id');
-        });
+        if (Schema::hasColumn('field_inputs', 'rules_brands_id')) {
+            return;
+        }
 
         Schema::table('field_inputs', function (Blueprint $table) {
             $table->foreignId('rules_brands_id')->constrained('rules_brands', 'id')->onDelete('cascade');

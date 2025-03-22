@@ -21,4 +21,8 @@ class PaymentMethod extends Model
         'status',
         'timing',
     ];
+    public function brands()
+    {
+        return $this->belongsToMany(BrandProduct::class, 'brand_payment_method', 'payment_method_id', 'brand_id');
+    }
 }
