@@ -9,8 +9,8 @@ class BrandProduct extends Model
     protected $fillable = [
         'name',
         'slug',
+        'category_id',
         'image',
-        'rules_brands_id',
         'provider',
         'status',
         'seo_description',
@@ -28,5 +28,10 @@ class BrandProduct extends Model
     public function rules()
     {
         return $this->belongsTo(RulesBrand::class, 'rules_brands_id', 'id');
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'category_id', 'id');
     }
 }

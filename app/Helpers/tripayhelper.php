@@ -36,7 +36,7 @@ class TripayHelper
 
     public function transaction($method = 'BRIVA', $customer = [], $orderItems = [], $amount = 1000000)
     {
-        $merchantRef = "TRX-" . time();
+        $merchantRef = "TRX-" . time() . "-" . rand(1000, 9999);
         $expiredTime = time() + (24 * 60 * 60); // 24 jam
 
         $data = [

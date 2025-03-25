@@ -45,6 +45,7 @@ class digiflazzRequest
             "username" => $this->username,
             "sign" => self::generateSignature($parameter['ref_id']),
             "buyer_sku_code" => $parameter['buyer_sku_code'],
+            'testing' => $parameter['testing'],
             "customer_no" => $parameter['customer_no'],
             "ref_id" => $parameter['ref_id'],
         ];

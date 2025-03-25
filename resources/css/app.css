@@ -1,11 +1,43 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
 @import 'tailwindcss';
+
+/* tailwindcs */
+@custom-variant dark (&:where(.dark, .dark *));
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
 @source '../**/*.js';
 
+@plugin "daisyui";
+
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+:root {
+    --primary: #8930fc; /* Warna orange */
+    --secondary: #ffcc00;
+    --color-primary:#8931fc;
+    --background: #1d1d1d;
+}
+
+body {
+    font-family: 'poppins', sans-serif;
+}
+
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+

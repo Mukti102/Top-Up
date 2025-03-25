@@ -33,6 +33,12 @@ class BrandProductResource extends Resource
 
     protected static ?int $navigationSort = 2; // Angka lebih kecil akan muncul lebih atas
 
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -56,6 +62,12 @@ class BrandProductResource extends Resource
                                 ->required()
                                 ->readOnly()
                                 ->maxLength(255)
+                                ->columnSpan(2),
+                            // select categoy
+                            Select::make('category')
+                                ->relationship('category', 'name')
+                                ->required()
+                                ->searchable()
                                 ->columnSpan(2),
                             Select::make('rules')
                                 ->relationship('rules', 'name')
@@ -122,6 +134,10 @@ class BrandProductResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('slug')
                     ->searchable(),
+
+                Tables\Columns\TextColumn::make('category.name')
+                    ->searchable(),
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->label("Di Buat Pada")
                     ->dateTime()

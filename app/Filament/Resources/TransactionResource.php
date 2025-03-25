@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\TransactionResource\Pages;
 use App\Filament\Resources\TransactionResource\RelationManagers;
 use App\Models\Transaction;
+use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -12,6 +13,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Arr;
 
 class TransactionResource extends Resource
 {
@@ -64,58 +66,65 @@ class TransactionResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('user_id')
-                    ->numeric()
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('reference_number')
+                    ->label('KODE')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('product.name')
                     ->numeric()
+                    ->label('Produk')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('costumer_number')
-                    ->searchable(),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Waktu Pesanan')
+                    ->sortable()
+                    ->formatStateUsing(fn($state) => Carbon::parse($state)->translatedFormat('d F Y H:i')),
                 Tables\Columns\TextColumn::make('quantity')
                     ->numeric()
+                    ->label('Jumlah')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('price')
-                    ->money()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('reference_number')
-                    ->searchable(),
+                    // rupiah   
+                    ->label('Total Harga')
+                    ->sortable()
+                    ->formatStateUsing(fn($state) => 'Rp ' . number_format($state, 0, ',', '.')),
                 Tables\Columns\TextColumn::make('email')
+                    ->icon('heroicon-m-envelope')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('phone')
+                    ->label('Nomor Telepon')
+                    ->icon('heroicon-m-phone')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('paymentMethod.name')
                     ->numeric()
+                    ->badge()
+                    ->color(fn() => Arr::random(['primary', 'success', 'warning', 'info', 'secondary',])) //random color
+                    ->label('Metode Pembayaran')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status')
-                    ->badge(
-                        fn(string $state): string => match ($state) {
-                            'pending' => 'warning',
-                            'processing' => 'info',
-                            'success' => 'success',
-                            'failed' => 'danger',
-                        }
-                    ),
+                    ->formatStateUsing(fn($state) => ucfirst($state))
+                    ->badge()
+                    ->color(fn(string $state): string => match (strtolower($state)) {
+                        'pending' => 'warning',
+                        'processing' => 'primary',
+                        'success' => 'success',
+                        'failed' => 'danger',
+                    }),
                 Tables\Columns\TextColumn::make('status_payment')
-                    ->badge(
-                        fn(string $state): string => match (strtolower($state)) {
-                            'pending' => 'warning',
-                            'success' => 'success',
-                            'failed' => 'danger',
-                            default => 'secondary', // Untuk status lain yang tidak dikenali
-                        }
-                    ),
+                    ->label('Status Pembayaran')
+                    ->formatStateUsing(fn($state) => ucfirst($state))
+                    ->badge()
+                    ->color(fn(string $state): string => match (strtolower($state)) {
+                        'pending' => 'warning',
+                        'success' => 'success',
+                        'failed' => 'danger',
+                    }),
                 Tables\Columns\TextColumn::make('processed_at')
-                    ->dateTime()
+                    ->label('Tanggal Pembayaran')
+                    ->formatStateUsing(fn($state) => $state ? Carbon::parse($state)->translatedFormat('d F Y H:i') : 'Belum Dibayar')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
+                    ->label('Tanggal Diupdate')
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //

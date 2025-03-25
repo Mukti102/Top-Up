@@ -15,6 +15,7 @@ use Filament\Actions;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 use function PHPSTORM_META\type;
 
@@ -27,6 +28,7 @@ class ListProducts extends ListRecords
         try {
             $products_digiflazz = DigiflazzHelper::getPriceList();
             $products = $products_digiflazz['data'];
+
             // update type product
             if (!empty($products)) {
                 foreach ($products as $product) {
@@ -39,18 +41,6 @@ class ListProducts extends ListRecords
                 }
             }
 
-            // update brand 
-            if (!empty($products)) {
-                foreach ($products as $product) {
-                    if (isset($product['brand']) && !empty($product['brand'])) {
-                        BrandProduct::updateOrCreate([
-                            'name' => $product['brand'],
-                            'slug' => Str::slug($product['brand'])
-                        ]);
-                    }
-                }
-            }
-
             // update category 
             if (!empty($products)) {
                 foreach ($products as $product) {
@@ -58,6 +48,22 @@ class ListProducts extends ListRecords
                         'name' => $product['category'],
                         'slug' => Str::slug($product['category'])
                     ]);
+                }
+            }
+
+            // update brand 
+            if (!empty($products)) {
+                foreach ($products as $product) {
+                    $category = Category::where('name', $product['category'])->value('id');
+                    if (isset($product['brand']) && !empty($product['brand'])) {
+                        BrandProduct::updateOrCreate(
+                            [
+                                'name' => $product['brand'],
+                                "slug" => Str::slug($product['brand']),
+                                'category_id' => $category ?? null,
+                            ],
+                        );
+                    }
                 }
             }
 
