@@ -2,9 +2,11 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Vite;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use Inertia\Inertia;
+use Outerweb\Settings\Models\Setting;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,8 +23,24 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        if (env('APP_ENV') !== 'local') {
-            URL::forceScheme('https');
-        }
+
+        // Ambil hanya key yang diperlukan
+        $settings = Setting::whereIn('key', [
+            'seo.title',
+            'seo.description',
+            'slider',
+            'theme',
+            'general.brand.favicon',
+            'general.brand.logo'
+        ])->pluck('value', 'key')->toArray();
+
+
+        // Bagikan ke semua halaman Inertia
+        Inertia::share('Setting', $settings);
+
+        // Jika masih ada tampilan Blade, bagikan juga ke semua views
+        View::share('Setting', $settings);
+
+        Vite::prefetch(concurrency: 3);
     }
 }

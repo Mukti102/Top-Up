@@ -30,13 +30,14 @@ class ListPaymentMethods extends ListRecords
                             'name' => $paymentMethod['name'] ?? null,
                             'type' => $paymentMethod['group'] ?? null,
                             'fee_percentage' => $paymentMethod['total_fee']['percent'] ?? 0,
-                            'fee_fixed' => $paymentMethod['fee_fixed'] ?? 0,
+                            'fee_fixed' => $paymentMethod['total_fee']['flat'] ?? 0,
                             'minimum_amount' => $paymentMethod['minimum_amount'] ?? 0,
                             'maximum_amount' => $paymentMethod['maximum_amount'] ?? 0,
                             'img_url' => $paymentMethod['icon_url'] ?? null,
                             'img' => $paymentMethod['img'] ?? null,
                             'status' => $paymentMethod['active'] ?? false,
                             'timing' => $paymentMethod['timing'] ?? null,
+                            'expired_time' => 60,
                         ];
 
                         PaymentMethod::updateOrCreate(

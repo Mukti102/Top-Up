@@ -76,9 +76,13 @@ class BrandProductResource extends Resource
                                 ->preload()
                                 ->required()
                                 ->columnSpan(2),
+                            TextInput::make('seo_title')
+                                ->label('Judul SEO')
+                                ->columnSpan(2),
                             TextInput::make('seo_description')
                                 ->label('Keterangan SEO')
                                 ->columnSpan(2),
+
                             FileUpload::make('image')
                                 ->image()
                                 ->label('Gambar Brand')
@@ -95,10 +99,28 @@ class BrandProductResource extends Resource
                                 ])
                                 ->required()
                                 ->columnSpan(2),
+                            FileUpload::make('background_image')
+                                ->image()
+                                ->label('Background Brand')
+                                ->disk('public')
+                                ->directory('brandProduct')
+                                ->imageEditor()
+                                ->maxSize("2048")
+                                ->columnSpan(2),
                             Toggle::make('status')
                                 ->label('Status')
                                 ->default(true)
                                 ->helperText('User Tidak Bisa Melihat Dan Membeli Brand Ini Jika Di Nonaktifkan')
+                                ->columnSpan(2),
+                            Toggle::make('isRecommended')
+                                ->label('Recomendasi')
+                                ->default(false)
+                                ->helperText('Di tampikan di halaman utama')
+                                ->columnSpan(2),
+                            Toggle::make('isPopular')
+                                ->label('Populer')
+                                ->default(false)
+                                ->helperText('di tampikan di halaman utama')
                                 ->columnSpan(2),
                             Forms\Components\RichEditor::make('description')
                                 ->columnSpanFull(),

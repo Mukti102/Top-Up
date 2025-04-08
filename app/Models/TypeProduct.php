@@ -10,4 +10,9 @@ class TypeProduct extends Model
         'name',
         'slug',
     ];
+
+    public function products()
+    {
+        return $this->hasMany(Product::class, 'type_product_id');
+    }
 }

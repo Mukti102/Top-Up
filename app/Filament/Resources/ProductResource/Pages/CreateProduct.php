@@ -14,7 +14,15 @@ class CreateProduct extends CreateRecord
 
     protected function afterCreate(): void
     {
-        event(new UserLogged(Auth::user(), 'User Berhasil Menambahkan Produk'));
+        try {
+
+            // Trigger event setelah berhasil
+            event(new UserLogged(Auth::user(), 'User Berhasil Menambahkan Product'));
+        } catch (\Exception $e) {
+
+            // Jika ingin mencatat error dengan pesan yang lebih spesifik
+            event(new UserLogged(Auth::user(), 'User Gagal Menambahkan Product: ' . $e->getMessage()));
+        }
     }
 
     protected function getRedirectUrl(): string

@@ -30,6 +30,8 @@ class Product extends Model
         'status',
         'stock',
         'price',
+        'membership_price',
+        'group_id'
     ];
 
     protected $attributes = [
@@ -49,5 +51,10 @@ class Product extends Model
     public function type()
     {
         return $this->belongsTo(TypeProduct::class, 'type_product_id');
+    }
+
+    public function group()
+    {
+        return $this->belongsTo(ProductGroup::class);
     }
 }

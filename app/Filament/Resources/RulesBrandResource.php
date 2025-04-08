@@ -30,6 +30,11 @@ class RulesBrandResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-puzzle-piece';
     protected static ?string $navigationGroup = 'Data Product';
     protected static ?string $navigationLabel = 'Aturan Brand';
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
+
     // urutan 
     protected static ?int $navigationSort = 1; // Angka lebih kecil akan muncul lebih atas
     public static function form(Form $form): Form

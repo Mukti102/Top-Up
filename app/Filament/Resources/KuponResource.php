@@ -26,6 +26,11 @@ class KuponResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-ticket';
     protected static ?string $navigationGroup = 'Data Lainya';
 
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
+
     public static function generateCouponCode(): string
     {
         $part1 = Str::upper(Str::random(2)) . rand(0, 9); // Contoh: "FY8"

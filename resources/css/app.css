@@ -1,35 +1,107 @@
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
+/* font */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 
 @import 'tailwindcss';
+@import "flowbite/src/themes/default";
+
+
 
 /* tailwindcs */
-@custom-variant dark (&:where(.dark, .dark *));
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+@plugin "daisyui";
+
+@plugin "flowbite/plugin";
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
 @source '../**/*.js';
+@source "../../node_modules/flowbite";
 
-@plugin "daisyui";
+
 
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+        --color-dark-text:oklch(87.2% 0.01 258.338);
+    --color-card:oklch(27.4% 0.006 286.033);
+    --color-dark:oklch(21.6% 0.006 56.043);
+
 }
+
+/* Untuk browser berbasis WebKit (Chrome, Safari, Edge terbaru) */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+
 :root {
-    --primary: #8930fc; /* Warna orange */
     --secondary: #ffcc00;
-    --color-primary:#8931fc;
     --background: #1d1d1d;
 }
 
-body {
-    font-family: 'poppins', sans-serif;
+::selection {
+  background-color: var(--color-primary); /* Warna background */
+  color: #ffff;
 }
+
+body {
+  font-family: "Montserrat", sans-serif;
+}
+
+.prose ul {
+  list-style-type: disc;
+  padding-left: 1.5rem; /* Sesuaikan jika perlu */
+}
+
+.prose li {
+  /* color bullet point */
+  margin-bottom: 0.5rem; /* Memberi jarak antar item */
+}
+
+.prose li::marker {
+  color: #c3c3c3;  /* Mengubah warna bullet point (contoh: tomato) */
+}
+
+.prose h1, 
+.prose h2, 
+.prose h3, 
+.prose h4, 
+.prose h5, 
+.prose h6 {
+    font-weight: bold !important;
+}
+
+
+
+@layer utilities {
+ 
+.out-shadow{
+  box-shadow: 2px 1px 6px #dbdbdb,-3px -3px 10px #ffffff;
+}
+
+
+.in-shadow{
+  box-shadow: rgba(0, 0, 0, 0.06) 0px 2px 4px 0px inset;
+}
+
+.inner-shadow{
+  box-shadow: #bababa 1px 1px 6px 0px inset, rgba(255, 255, 255, 0.5) -2px -3px 6px 1px inset;
+}
+
+.touch-element:hover ~ .cursor{
+  width: 100px;
+  height: 100px;
+}
+
+}
+
+
+input:-webkit-autofill {
+  background-color: transparent !important;
+  -webkit-box-shadow: 0 0 0px 1000px  inset !important;
+}
+
 
 
 .scrollbar-hide::-webkit-scrollbar {
@@ -41,3 +113,9 @@ body {
     scrollbar-width: none;
   }
 
+  .shadow-box{
+    box-shadow: 2px 1px 6px  var(--color-primary);
+  }
+
+
+  

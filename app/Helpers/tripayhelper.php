@@ -3,6 +3,7 @@
 namespace App\Helpers;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class TripayHelper
 {
@@ -34,43 +35,55 @@ class TripayHelper
     }
 
 
-    public function transaction($method = 'BRIVA', $customer = [], $orderItems = [], $amount = 1000000)
+    public function transaction($customer)
     {
-        $merchantRef = "TRX-" . time() . "-" . rand(1000, 9999);
-        $expiredTime = time() + (24 * 60 * 60); // 24 jam
+        $expiredTime = $customer["expired_time"] ?? time() + (60 * 60); // 1 jam
+
+        $product = $customer['product'];
+        $paymentMethod = $customer['payment_method_code'];
+        $email = $customer['email'] ?? "admin@gmail.com";
+        $phone = $customer['phone'] ?? '081234567890';
+        $amount = (string) $customer['amount'];
+        $merchantRef = $customer['merchant_ref'] ?? "TRX-" . time() . "-" . rand(10000, 99999);
 
         $data = [
-            'method'         => $method,
+            'method'         => $paymentMethod,
             'merchant_ref'   => $merchantRef,
-            'amount'         => $amount,
-            'customer_name'  => $customer['name'] ?? 'NAMA PELANGGAN',
-            'customer_email' => $customer['email'] ?? 'emailpelanggan@domain.com',
-            'customer_phone' => $customer['phone'] ?? '081234567890',
-            'order_items'    => $orderItems ?: [
+            'amount'         => number_format(ceil($amount), 0, '', ''),
+            'customer_name'  => $customer['customer_name'] ?? 'Guest',
+            'customer_email' => $email ?? 'abdulmukti40390@gmail.com',
+            'customer_phone' => $phone,
+            'order_items'    => [
                 [
-                    'sku'         => 'FB-06',
-                    'name'        => 'Nama Produk 1',
-                    'price'       => 500000,
-                    'quantity'    => 1,
-                    'product_url' => 'https://tokokamu.com/product/nama-produk-1',
-                    'image_url'   => 'https://tokokamu.com/product/nama-produk-1.jpg',
-                ],
-                [
-                    'sku'         => 'FB-07',
-                    'name'        => 'Nama Produk 2',
-                    'price'       => 500000,
-                    'quantity'    => 1,
-                    'product_url' => 'https://tokokamu.com/product/nama-produk-2',
-                    'image_url'   => 'https://tokokamu.com/product/nama-produk-2.jpg',
+                    'sku'       => $product->sku_code ?? "KODE",
+                    'id'       => $product->id ?? "1",
+                    'name'     => $product->name ?? "Produuct",
+                    'price'    => number_format(ceil($amount), 0, '', ''),
+                    'quantity' => $customer['quantity'] ?? '1',
                 ]
             ],
             'expired_time' => $expiredTime,
-            'signature'    => hash_hmac('sha256', $this->merchanCode . $merchantRef . $amount, $this->privateKey),
+            'signature'    => hash_hmac('sha256', $this->merchanCode . $merchantRef . number_format($amount, 0, '', ''), $this->privateKey),
         ];
+
+        Log::info("tripay", $data);
 
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $this->apiKey
         ])->post($this->baseUrl . 'transaction/create', $data);
-        return $response->json();
+        return  json_decode($response->body(), true);
+    }
+
+
+    public function detailTransaction($reference)
+    {
+
+        $payload = ['reference'    => $reference];
+
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->apiKey
+        ])->get($this->baseUrl . 'transaction/detail?' . http_build_query($payload));
+
+        return json_decode($response);
     }
 }

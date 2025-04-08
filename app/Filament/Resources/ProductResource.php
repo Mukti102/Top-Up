@@ -14,11 +14,14 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Toggle;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Log;
 
 use function Laravel\Prompts\warning;
 
@@ -93,6 +96,9 @@ class ProductResource extends Resource
                                 Select::make('type_product_id')
                                     ->relationship('type', 'name')
                                     ->required(),
+                                Select::make('group_id')
+                                    ->relationship('group', 'name')
+                                    ->required(),
                             ])
                             ->columnSpan(4), // 1/4 dari layar
                     ]),
@@ -113,12 +119,12 @@ class ProductResource extends Resource
                                             ->numeric()
                                             ->debounce(500)
                                             ->afterStateUpdated(
-                                                fn($state, callable $set, callable $get) =>
-                                                $set('total_price', max(
-                                                    0,
-                                                    (float)($get('selling_price') ?? 0)
-                                                        + (float)($get('admin_fee') ?? 0)
-                                                ))
+                                                function ($state, callable $set, callable $get) {
+                                                    $set('benefit', max(
+                                                        0,
+                                                        (float)($get('total_price') - (float)$state)
+                                                    ));
+                                                }
                                             ),
                                         Forms\Components\TextInput::make('selling_price')
                                             ->required()
@@ -129,13 +135,21 @@ class ProductResource extends Resource
                                             ->debounce(1000)
                                             ->afterStateUpdated(
                                                 function ($state, callable $set, callable $get) {
-                                                    $totalPrice = max(0, ((float)($get('selling_price') ?? 0)) + ((float)($get('admin_fee') ?? 0)));
+                                                    $sellingPrice = (float)$state;
+                                                    $discount = (float)$get('premium_price') ?? 0;
 
-                                                    $set('total_price', $totalPrice);
+                                                    // Calculate discounted price
+                                                    $discountedPrice = $sellingPrice * (1 - ($discount / 100));
+                                                    $set('membership_price', max(0, $discountedPrice));
 
-                                                    // Hitung keuntungan
-                                                    $profit = ((float)($get('selling_price') ?? 0)) - ((float)($get('base_price') ?? 0));
-                                                    $set('benefit', max(0, $profit));
+                                                    // Update total price
+                                                    $adminFee = (float)$get('admin_fee') ?? 0;
+                                                    $totalPrice = $discountedPrice + $adminFee;
+                                                    $set('total_price', max(0, $totalPrice));
+
+                                                    // Update profit
+                                                    $basePrice = (float)$get('base_price') ?? 0;
+                                                    $set('benefit', max(0, $totalPrice - $basePrice));
                                                 }
                                             ),
                                     ]),
@@ -150,12 +164,40 @@ class ProductResource extends Resource
                                             ->default(0)
                                             ->debounce(500)
                                             ->afterStateUpdated(
-                                                fn($state, callable $set, callable $get) =>
-                                                $set('total_price', max(0, ((float)($get('selling_price') ?? 0)) - ((float)($get('premium_price') ?? 0) / 100 * (float)($get('selling_price') ?? 0)) + ((float)($get('admin_fee') ?? 0))))
+                                                function ($state, callable $set, callable $get) {
+                                                    $adminFee = (float)$state;
+                                                    $discountedPrice = (float)$get('membership_price') ?? 0;
+                                                    $totalPrice = $discountedPrice + $adminFee;
+                                                    $set('total_price', max(0, $totalPrice));
+
+                                                    // Update profit
+                                                    $basePrice = (float)$get('base_price') ?? 0;
+                                                    $set('benefit', max(0, $totalPrice - $basePrice));
+                                                }
                                             ),
                                         Forms\Components\TextInput::make('premium_price')
                                             ->required()
                                             ->default(0)
+                                            ->debounce(500)
+                                            ->afterStateUpdated(
+                                                function ($state, callable $set, callable $get) {
+                                                    $discount = (float)$state;
+                                                    $sellingPrice = (float)$get('selling_price') ?? 0;
+
+                                                    // Calculate discounted price
+                                                    $discountedPrice = $sellingPrice * (1 - ($discount / 100));
+                                                    $set('membership_price', max(0, $discountedPrice));
+
+                                                    // Update total price
+                                                    $adminFee = (float)$get('admin_fee') ?? 0;
+                                                    $totalPrice = $discountedPrice + $adminFee;
+                                                    $set('total_price', max(0, $sellingPrice));
+
+                                                    // Update profit
+                                                    $basePrice = (float)$get('base_price') ?? 0;
+                                                    $set('benefit', max(0, $totalPrice - $basePrice));
+                                                }
+                                            )
                                             ->label('Potongan Membership')
                                             ->helperText('Potongan Harga untuk membership dalam persen (%)')
                                             ->prefix('%')
@@ -168,15 +210,21 @@ class ProductResource extends Resource
                                             ->numeric()
                                             ->default(0)
                                             ->label('Total Harga')
-                                            ->readOnly() // Mencegah user mengedit langsung
-                                            ->helperText('Harga Jual + Biaya Admin')
+                                            ->readOnly()
+                                            ->helperText('Harga Setelah Diskon + Biaya Admin')
                                             ->prefix('Rp'),
                                         Forms\Components\TextInput::make('benefit')
                                             ->readOnly()
                                             ->label('Keuntungan')
                                             ->numeric()
-                                            ->readOnly() // Agar tidak bisa diedit oleh user
-                                            ->helperText('Keuntungan dihitung dari Harga Jual - Harga Beli'),
+                                            ->helperText('Keuntungan dihitung dari Total Harga - Harga Beli')
+                                            ->prefix('Rp'),
+                                        Forms\Components\TextInput::make('membership_price')
+                                            ->readOnly()
+                                            ->label('Harga Setelah Diskon')
+                                            ->prefix('Rp')
+                                            ->numeric()
+                                            ->helperText('Harga Jual setelah potongan membership'),
                                     ]),
                             ])->columnSpan(8),
                     ]),
@@ -272,7 +320,7 @@ class ProductResource extends Resource
                 Tables\Columns\TextColumn::make('membership_price')
                     ->label('Membership')
                     ->numeric()
-                    ->formatStateUsing(fn($record) => "Rp " . number_format($record->total_price - ($record->total_price * ($record->premium_price / 100)), 0, ',', '.'))
+                    ->formatStateUsing(fn($record) => "Rp " . number_format($record->membership_price), 0, ',', '.')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('reward_points')
                     ->label('Koin Reward')
@@ -309,6 +357,29 @@ class ProductResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\BulkAction::make('updateGroup')
+                        ->label('Update Group')
+                        ->icon('heroicon-o-pencil')
+                        ->form([
+                            Forms\Components\Select::make('group_id')
+                                ->label('Select Group')
+                                ->relationship('group', 'name')
+                                ->required(),
+                        ])
+                        ->action(function (Collection $records, array $data) {
+                            foreach ($records as $record) {
+                                if ($record instanceof Product) {
+                                    $record->update(['group_id' => $data['group_id']]);
+                                }
+                            }
+                            // Menambahkan notifikasi setelah update
+                            Notification::make()
+                                ->title('Success')
+                                ->body('Group updated successfully for the selected products.')
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
                 ]),
             ]);
     }

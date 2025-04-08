@@ -16,6 +16,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Outerweb\Settings\Models\Setting;
 
 use function PHPSTORM_META\type;
 
@@ -28,6 +29,7 @@ class ListProducts extends ListRecords
         try {
             $products_digiflazz = DigiflazzHelper::getPriceList();
             $products = $products_digiflazz['data'];
+            $digiflazzSkuCodes = collect($products)->pluck('buyer_sku_code')->toArray();
 
             // update type product
             if (!empty($products)) {
@@ -71,18 +73,29 @@ class ListProducts extends ListRecords
             if (!empty($products)) {
                 foreach ($products as $product) {
                     $basePrice = $product['price'];
-                    $premiumPrice = 2; // 2% diskon membership
+
+                    // Mengambil nilai margin dan diskon premium dengan fallback 0
+                    $margin = (float) optional(Setting::where('key', 'transaction.benefit')->first())->value ?? 0;
+                    $premiumDiscount = (float) optional(Setting::where('key', 'transaction.dicount.premium.member')->first())->value ?? 0;
+
+                    // Menghitung harga jual dengan margin keuntungan
+                    $sellingPrice = $basePrice + ($margin / 100 * $basePrice);
+
+                    // Biaya admin (jika ada, bisa diatur dinamis)
                     $adminFee = 0;
-                    // Harga jual (5% keuntungan dari harga beli)
-                    $sellingPrice = $basePrice + (5 / 100 * $basePrice);
-                    // Total harga (harga jual + admin fee)
+
+                    // Total harga setelah ditambah admin fee
                     $totalPrice = $sellingPrice + $adminFee;
-                    // Harga membership (total harga dikurangi diskon membership)
-                    $membershipPrice = $totalPrice - ($premiumPrice / 100 * $totalPrice);
-                    // Keuntungan (total harga - harga beli)
+
+                    // Menghitung harga setelah diskon premium
+                    $membershipPrice = $totalPrice - ($premiumDiscount / 100 * $totalPrice);
+
+
+                    // Keuntungan dari transaksi
                     $benefit = $totalPrice - $basePrice;
 
-                    Product::updateOrCreate(
+
+                    $result = Product::updateOrCreate(
                         ['sku_code' => $product['buyer_sku_code']], // Kunci unik untuk update
                         [
                             'name' => $product['product_name'],
@@ -97,7 +110,7 @@ class ListProducts extends ListRecords
                             'status' => $product['buyer_product_status'],
                             'seller_status' => $product['buyer_product_status'],
                             'base_price' => $basePrice,
-                            'premium_price' => $premiumPrice,
+                            'premium_price' => $premiumDiscount,
                             'selling_price' => $sellingPrice,
                             'admin_fee' => $adminFee,
                             'total_price' => $totalPrice,
@@ -105,6 +118,19 @@ class ListProducts extends ListRecords
                             'benefit' => $benefit,
                         ]
                     );
+
+                    Product::where('provider', 'digi_flazz') // hanya provider DigiFlazz
+                        ->whereNotIn('sku_code', $digiflazzSkuCodes) // yang tidak ada di list baru
+                        ->delete();
+
+                    // Hapus brand yang tidak punya produk
+                    BrandProduct::doesntHave('products')->delete();
+
+                    // Hapus type yang tidak punya produk
+                    TypeProduct::doesntHave('products')->delete();
+
+                    // Hapus category yang tidak punya produk
+                    Category::doesntHave('products')->delete();
                 }
             }
 

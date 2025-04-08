@@ -2,14 +2,14 @@ import React from "react";
 
 function FatsDeliver() {
     return (
-        <div class="max-h-fit max-w-fit rounded bg-white shadow-sm border-0.5 border-gray-200 p-1">
+        <div class="max-h-fit max-w-fit  rounded bg-white shadow-sm border-0.5 border-gray-200 p-1">
             <svg
                 width="52"
                 height="16"
                 viewBox="0 0 52 16"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
-                class="h-3 w-12"
+                class="h-3 md:w-12"
             >
                 <path
                     fill-rule="evenodd"

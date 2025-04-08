@@ -34,11 +34,11 @@ export default function TabSection({ categories }) {
     };
 
     return (
-        <div className="relative w-full mt-5 px-5">
+        <div className="relative w-full mt-5 px-2 md:px-5">
             {/* Tab Navigation */}
             <div className="relative flex items-center justify-center">
                 <button
-                    className="absolute left-0 z-10 p-2 bg-[var(--primary)] text-white rounded-full md:hidden"
+                    className="absolute left-0 z-10 p-2 bg-primary dark:bg-secondary text-white rounded-md md:hidden"
                     onClick={() => scroll(scrollRef, "left")}
                 >
                     <FaChevronLeft />
@@ -46,16 +46,16 @@ export default function TabSection({ categories }) {
 
                 <div
                     ref={scrollRef}
-                    className="flex cursor-pointer group  w-full gap-4 overflow-x-auto  scroll-smooth scrollbar-hide whitespace-nowrap md:px-0 px-10 md:justify-start"
+                    className="flex cursor-pointer group  w-full gap-3 md:gap-4 overflow-x-auto  scroll-smooth scrollbar-hide whitespace-nowrap md:pr-1 pr-10 pl-10 md:pl-0 md:px-0 py-2 md:px-10 md:justify-start"
                 >
                     {categories?.map((category, index) => (
                         <button
                             key={index}
                             onClick={() => handleTabClick(category?.name)}
-                            className={`px-4 hover:bg-[var(--primary)] hover:text-white  cursor-pointer py-2 text-sm shadow-md rounded-lg font-medium ${
+                            className={`md:px-4  px-2.5 dark:shadow-md cursor-pointer py-1.5 md:py-2 md:text-sm text-sm  rounded-sm md:rounded-lg font-medium ${
                                 activeTab === category?.name
-                                    ? "bg-[var(--primary)] text-white"
-                                    : "bg-transparent border-1 border-[var(--primary)] text-primary"
+                                    ? "bg-primary dark:bg-secondary text-white hover:bg-primary dark:hover:bg-secondary dark:bg-secondary"
+                                    : "bg-gray-50 dark:bg-card  hover:bg-primary dark:hover:bg-secondary dark:bg-card hover:text-white  shadow-sm  border-primary dark:hover:text-white text-primary dark:text-secondary"
                             }`}
                         >
                             {category?.name}
@@ -64,7 +64,7 @@ export default function TabSection({ categories }) {
                 </div>
 
                 <button
-                    className="absolute right-0 z-10 p-2 bg-[var(--primary)] text-white rounded-full md:hidden"
+                    className="absolute right-0 z-10 p-2 bg-primary dark:bg-secondary text-white rounded-md md:hidden"
                     onClick={() => scroll(scrollRef, "right")}
                 >
                     <FaChevronRight />

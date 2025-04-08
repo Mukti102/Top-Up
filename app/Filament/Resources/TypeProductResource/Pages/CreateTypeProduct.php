@@ -14,7 +14,15 @@ class CreateTypeProduct extends CreateRecord
 
     protected function afterCreate(): void
     {
-        event(new UserLogged(Auth::user(), 'User Berhasil Menambahkan Type Produk'));
+        try {
+
+            // Trigger event setelah berhasil
+            event(new UserLogged(Auth::user(), 'User Berhasil Menambahkan Tipe'));
+        } catch (\Exception $e) {
+
+            // Jika ingin mencatat error dengan pesan yang lebih spesifik
+            event(new UserLogged(Auth::user(), 'User Gagal Menambahkan Tipe: ' . $e->getMessage()));
+        }
     }
 
     protected function getRedirectUrl(): string

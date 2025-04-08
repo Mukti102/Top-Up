@@ -28,13 +28,11 @@ class DigiflazzHelper
      */
     public static function getBalance()
     {
-        return self::generateSignature('test1');
         $response = Http::post(config('digiflazz.endpoint') . "cek-saldo", [
             "cmd" => "deposit",
             "username" => config('digiflazz.username'),
             "sign" => self::generateSignature('depo')
         ]);
-
         return $response->json();
     }
 }

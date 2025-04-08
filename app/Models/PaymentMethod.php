@@ -20,6 +20,7 @@ class PaymentMethod extends Model
         'img',
         'status',
         'timing',
+        'expired_time',
     ];
     public function brands()
     {

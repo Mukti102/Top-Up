@@ -1,4 +1,5 @@
 module.exports = {
+  darkMode: ["class", '[data-theme="dark"]'], // ini buat support dua mode
     content: [
       './resources/js/**/*.jsx',  // Add paths to React components
       './resources/views/**/*.blade.php',  // Add paths to Blade views
@@ -9,6 +10,7 @@ module.exports = {
             primary: '#ff7f50', // Warna utama (contoh: coral)
           }
       },
+      
     },
     plugins: [],
   };

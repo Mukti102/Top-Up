@@ -28,6 +28,11 @@ class PaymentMethodResource extends Resource
     protected static ?string $navigationLabel = 'Metode Pembayaran';
     protected static ?string $navigationGroup = 'Data Lainya';
 
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -50,8 +55,10 @@ class PaymentMethodResource extends Resource
                                     ->required()
                                     ->label('Tipe Metode Pembayaran')
                                     ->maxLength(255),
-                                Forms\Components\TextInput::make('timing')
-                                    ->label('Waktu Pembayaran')
+                                Forms\Components\TextInput::make('expired')
+                                    ->numeric()
+                                    ->suffix('Menit')
+                                    ->label('Timing Pembayaran')
                                     ->maxLength(255),
                             ])->columnSpan(7),
                         Section::make('Informasi Tambahan')
@@ -88,19 +95,20 @@ class PaymentMethodResource extends Resource
                     ->description('Informasi Tambahan')
                     ->schema([
                         Forms\Components\TextInput::make('img_url')
-                            ->required()
                             ->label('URL Gambar Metode Pembayaran')
                             ->maxLength(255),
                         FileUpload::make('img')
-                            ->disk('public')
                             ->label('Gambar Metode Pembayaran')
-                            ->directory('payment-methods')
+                            ->imageEditor()
+                            ->disk('public')
+                            ->directory('paymentmethods')
                             ->maxSize(1024)
                             ->image(),
-                        Toggle::make('status')
-                            ->afterStateUpdated(fn($set, $state) => $set('status', $state ? 'active' : 'inactive'))
-                            ->label('Status Metode Pembayaran')
-                            ->helperText("Status Metode Pembayaran yang bisa digunakan untuk transaksi"),
+                        Select::make("status")
+                            ->options([
+                                "active" => "active",
+                                "inactive" => "inactive",
+                            ]),
                     ]),
 
             ]);
@@ -120,6 +128,10 @@ class PaymentMethodResource extends Resource
                     ->label('Ikon Metode Pembayaran'),
                 Tables\Columns\TextColumn::make('type')
                     ->label('Tipe Metode Pembayaran')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('fee_fixed')
+                    ->label('Biaya Admin')
+                    ->formatStateUsing(fn($state) => 'Rp ' . number_format($state, 0, ',', '.'))
                     ->searchable(),
                 IconColumn::make('status')
                     ->label('Status')

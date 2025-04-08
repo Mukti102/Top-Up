@@ -23,11 +23,11 @@ export default function CardList({ getTabData, activeTab, contentScrollRef }) {
                 initial="hidden"
                 animate="show"
                 exit="hidden"
-                className="relative mt-4"
+                className="relative md:min-h-[300px] mt-4"
             >
-                <div className="flex gap-3 flex-wrap">
+                <div className="grid md:grid-cols-6 grid-cols-3 gap-3 md:gap-4 ">
                     {getTabData().length === 0 && (
-                        <div className="w-full h-[300px] flex justify-center items-center">
+                        <div className="w-full md:h-[300px] flex justify-center items-center">
                             <h1 className="text-[#4e4e4e] text-2xl font-semibold">
                                 Tidak ada data
                             </h1>

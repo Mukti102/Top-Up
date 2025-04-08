@@ -15,7 +15,15 @@ class CreateCategory extends CreateRecord
 
     protected function afterCreate(): void
     {
-        event(new UserLogged(Auth::user(), 'User Berhasil Menambahkan Kategori'));
+        try {
+
+            // Trigger event setelah berhasil
+            event(new UserLogged(Auth::user(), 'User Berhasil Menambahkan Kategory'));
+        } catch (\Exception $e) {
+
+            // Jika ingin mencatat error dengan pesan yang lebih spesifik
+            event(new UserLogged(Auth::user(), 'User Gagal Menambahkan Kategory: ' . $e->getMessage()));
+        }
     }
 
     protected function getRedirectUrl(): string

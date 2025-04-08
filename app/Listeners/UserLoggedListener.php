@@ -23,7 +23,7 @@ class UserLoggedListener
     public function handle(UserLogged $event): void
     {
         UserLogs::create([
-            'user_id' => $event->user->id ?? 0,
+            'user_id' => $event->user->id ?? null,
             'name' => $event->user->name ?? 'AUTH GUEST',
             'ip_address' => request()->ip(),
             'user_agent' => request()->userAgent(),

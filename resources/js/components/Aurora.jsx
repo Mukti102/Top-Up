@@ -203,5 +203,5 @@ export default function Aurora(props) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [amplitude]);
 
-    return <div ref={ctnDom} className="w-full  h-[400px]" />;
+    return <div ref={ctnDom} className="w-full h-[200px]  md:h-[400px]" />;
 }

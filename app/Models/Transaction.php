@@ -20,9 +20,16 @@ class Transaction extends Model
         'phone',
         'payment_method_id',
         'status',
+        'kupon_id',
         'status_payment',
         'processed_at',
+        "type",
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 
     public function product()
     {
@@ -32,5 +39,10 @@ class Transaction extends Model
     public function paymentMethod()
     {
         return $this->belongsTo(PaymentMethod::class);
+    }
+
+    public function kupon()
+    {
+        return $this->belongsTo(Kupon::class);
     }
 }

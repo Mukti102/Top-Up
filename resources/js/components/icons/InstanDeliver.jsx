@@ -2,7 +2,7 @@ import React from "react";
 
 function InstanDeliver() {
     return (
-        <div class="h-fit w-fit rounded bg-white p-1">
+        <div class="h-fit w-fit out-shadow rounded bg-white p-1">
             <svg
                 width="52"
                 height="16"

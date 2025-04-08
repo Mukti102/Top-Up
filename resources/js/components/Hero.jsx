@@ -1,60 +1,77 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { GrFormNext, GrNext } from "react-icons/gr";
 import Aurora from "./Aurora";
+import "swiper/css";
+import "swiper/css/navigation";
+import { usePage } from "@inertiajs/react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, Navigation } from "swiper/modules";
 
 function Hero() {
-    const images = [
-        "https://i.pinimg.com/736x/7f/d1/7e/7fd17e2ecf4fe813890e0a8080b5cbf8.jpg",
-        "https://i.pinimg.com/736x/ee/ee/80/eeee808893281334712259335f4de5e9.jpg",
-        "https://i.pinimg.com/736x/7f/d1/7e/7fd17e2ecf4fe813890e0a8080b5cbf8.jpg",
-        "https://i.pinimg.com/736x/ee/ee/80/eeee808893281334712259335f4de5e9.jpg",
-    ];
+    const { Setting } = usePage().props; // Mengambil data user dari Inertia
+    const slider = Setting?.slider?.map((item) => "/storage/" + item?.slide);
+    const [images, setImages] = useState([]);
+    const backgroundImage = Setting?.["background.home"];
+
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            setImages(slider);
+        }, 3000); // 3000 ms = 3 detik
+
+        return () => clearTimeout(timeout); // clear timeout jika komponen di-unmount
+    }, []);
 
     return (
-        <div className="p-0 mt-16 bg-slate-900 ">
-            <div className="absolute w-full">
+        <div className="md:pt-16 relative oveflow-hidden min-h-[300px] md:min-h-[600px]  pt-12">
+            <div className="absolute hidden dark:block z-10  w-full">
                 <Aurora amplitude={0.5} />
             </div>
-            <div className="p-10">
-                <div
-                    id="controls-carousel"
-                    class="relative w-full rounded-3xl bg-amber-50"
-                    data-carousel="static"
-                >
-                    {/* <!-- Carousel wrapper --> */}
-                    <div class="relative h-56 rounded-3xl overflow-hidden  md:h-[480px]">
-                        {images.map((image, index) => (
-                            <div
-                                key={index}
-                                class="hidden duration-700 ease-in-out"
-                                data-carousel-item
-                            >
+            <div className="absolute dark:block hidden overflow-hidden h-full  dark:block right-0 left-0 top-0 z-0">
+                <img
+                    src={`/storage/${backgroundImage}`}
+                    className="w-full h-full object-cover"
+                />
+            </div>
+
+            <div className="md:p-10  p-2.5 pb-2  md:pb-10 py-12">
+                <div className="relative z-30 w-full md:rounded-3xl">
+                    <Swiper
+                        modules={[Navigation, Autoplay]}
+                        navigation={{
+                            prevEl: ".custom-prev",
+                            nextEl: ".custom-next",
+                        }}
+                        autoplay={{ delay: 5000 }}
+                        loop={true}
+                        className="relative z-10 rounded-xl shadow-md md:rounded-3xl overflow-hidden md:h-[480px] h-42"
+                    >
+                        {images?.map((image, index) => (
+                            <SwiperSlide key={index}>
                                 <img
-                                    src="https://i.pinimg.com/736x/7f/d1/7e/7fd17e2ecf4fe813890e0a8080b5cbf8.jpg"
-                                    class="absolute block w-full -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2"
-                                    alt="item1"
+                                    src={image}
+                                    alt={`item${index}`}
+                                    className="h-full w-full object-cover"
                                 />
-                            </div>
+                            </SwiperSlide>
                         ))}
-                    </div>
-                    {/* <!-- Slider controls --> */}
+                    </Swiper>
+
+                    {/* Custom Navigation Buttons */}
                     <button
                         type="button"
-                        class="absolute top-0 start-0 z-30 flex items-center justify-center h-full px-4 cursor-pointer group focus:outline-none"
-                        data-carousel-prev
+                        className="custom-prev absolute top-0 -start-2 md:start-0 z-10 flex items-center justify-center h-full px-4 cursor-pointer group focus:outline-none"
                     >
-                        <span class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-white/30 dark:bg-gray-800/30">
+                        <span className="inline-flex items-center justify-center md:w-12 md:h-12 w-8 h-8 rounded-full bg-white/30 dark:bg-gray-800/30">
                             <FaChevronLeft className="text-white text-lg" />
-                            <span class="sr-only">Previous</span>
+                            <span className="sr-only">Previous</span>
                         </span>
                     </button>
                     <button
                         type="button"
-                        className="absolute top-0 end-0 z-30 flex items-center justify-center h-full px-4 cursor-pointer group focus-visible:outline-none"
-                        data-carousel-next
+                        className="custom-next absolute top-0 -end-2 md:end-0 z-10 flex items-center justify-center h-full px-4 cursor-pointer group focus-visible:outline-none"
                     >
-                        <span className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-white/30 dark:bg-gray-800/30">
+                        <span className="inline-flex items-center justify-center md:w-12 md:h-12 w-8 h-8 rounded-full bg-white/30 dark:bg-gray-800/30">
                             <FaChevronRight className="text-white text-lg" />
                             <span className="sr-only">Next</span>
                         </span>

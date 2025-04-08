@@ -14,8 +14,12 @@ class BrandProduct extends Model
         'provider',
         'status',
         'seo_description',
+        'seo_title',
         'is_payment_costum',
         'rules_brands_id',
+        'isRecommended',
+        "isPopular",
+        "background_image",
         'description',
     ];
 
@@ -33,5 +37,10 @@ class BrandProduct extends Model
     public function category()
     {
         return $this->belongsTo(Category::class, 'category_id', 'id');
+    }
+
+    public function products()
+    {
+        return $this->hasMany(Product::class, 'brand_product_id');
     }
 }

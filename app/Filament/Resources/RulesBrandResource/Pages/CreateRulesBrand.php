@@ -14,7 +14,15 @@ class CreateRulesBrand extends CreateRecord
 
     protected function afterCreate(): void
     {
-        event(new UserLogged(Auth::user(), 'User Berhasil Menambahkan Aturan Brand '));
+        try {
+
+            // Trigger event setelah berhasil
+            event(new UserLogged(Auth::user(), 'User Berhasil Menambahkan Aturan Brand'));
+        } catch (\Exception $e) {
+
+            // Jika ingin mencatat error dengan pesan yang lebih spesifik
+            event(new UserLogged(Auth::user(), 'User Gagal Menambahkan Aturan Brand: ' . $e->getMessage()));
+        }
     }
 
     protected function getRedirectUrl(): string
