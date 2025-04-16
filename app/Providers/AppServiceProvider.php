@@ -2,6 +2,13 @@
 
 namespace App\Providers;
 
+use App\Models\BrandProduct;
+use App\Models\News;
+use App\Models\ProductGroup;
+use App\Observers\BrandProductObserver;
+use App\Observers\NewsObserver;
+use App\Observers\ProductGroupObserver;
+use App\Observers\SettingObserver;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -24,6 +31,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
 
+        Setting::observe(SettingObserver::class);
+        BrandProduct::observe(BrandProductObserver::class);
+        News::observe(NewsObserver::class);
+        ProductGroup::observe(ProductGroupObserver::class);
         // Ambil hanya key yang diperlukan
         $settings = Setting::whereIn('key', [
             'seo.title',

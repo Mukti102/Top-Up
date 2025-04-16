@@ -43,7 +43,7 @@ function CardBasket({ handleSubmit, brand }) {
 
     const total = () => {
         const isPremium = auth?.user && auth?.user?.level == "premium";
-        console.log(isPremium);
+
         const productPrice = !isPremium
             ? product?.total_price
             : product?.membership_price;

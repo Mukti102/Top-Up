@@ -35,7 +35,7 @@ export default function Register() {
                 <div className="flex min-h-full flex-1 flex-col justify-center px-3 md:px-6 py-7 md:py-12 lg:px-8">
                     <div className="sm:mx-auto sm:w-full sm:max-w-sm">
                         <h1 className="text-3xl dark:text-dark-text text-gray-600  text-black font-black">
-                            Masuk Member Deyustore
+                            Masuk Member
                         </h1>
                         <h2 className="mt-2 text-[0.9rem] dark:text-dark-text/70 font-normal text-gray-500">
                             Masukan nomor whatsapp dan password kamu untuk masuk

@@ -29,7 +29,7 @@ class SendWa implements ShouldQueue
     public function handle(): void
     {
         $response = Http::asForm()->withHeaders([
-            'Authorization' => 'GJu2qM8YKF47K8PC1b3u' // Ganti dengan token Fonnte kamu
+            'Authorization' => env('WHATSAPP_TOKEN') // Ganti dengan token Fonnte kamu
         ])->post('https://api.fonnte.com/send', [
             'target' => $this->phone,
             'message' => $this->message,
@@ -38,7 +38,7 @@ class SendWa implements ShouldQueue
 
 
         if ($response->failed()) {
-            throw new \Exception('Gagal mengirim OTP ke WhatsApp');
+            throw new \Exception('Gagal mengirim pesan ke whatsapp');
         }
     }
 }

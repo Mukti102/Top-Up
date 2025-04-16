@@ -33,7 +33,6 @@ class TemplateWhatsappHelper
                     SendWa::dispatch($a->phone, $message);
                 }
             } catch (\Exception $e) {
-                Log::error("Gagal Mengirim Pesan Untuk Admin", ['exception' => $e]);
                 event(new UserLogged(Auth::check() ? Auth::user()->name : "GUEST", 'Gagal Mengirim Pesan Untuk Admin: ' . $e->getMessage()));
             }
         } else {

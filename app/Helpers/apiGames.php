@@ -27,7 +27,6 @@ class ApiGames
 
         $response = Http::get($url);
 
-        Log::info($response->body()); // debug isi body-nya
 
         if ($response->successful()) {
             return $response->json();
@@ -47,19 +46,13 @@ class ApiGames
 
         if ($brand->name == "MOBILE LEGENDS") {
             $values = array_values($costumer);
-            Log::info("ini setelah di array values", $values);
             $id_user = $values[0] . ' ' . $values[1];
-            Log::info("ini setelah di values[0] values[1] " . $id_user);
             $res  = self::cekUserName('mobilelegend', $id_user);
-            Log::info('dan ini hasilnya', $res);
             return $res;
         } elseif ($brand->name == "FREE FIRE") {
             $values = array_values($costumer);
-            Log::info("ini setelah di array values", $values);
             $id_user = (string) $values[0];
-            Log::info("ini setelah di values[0]" . $id_user);
             $res = self::cekUserName('freefire', $id_user);
-            Log::info('dan ini hasilnya', $res);
             return $res;
         } else {
             return [

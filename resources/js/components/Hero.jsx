@@ -34,8 +34,8 @@ function Hero() {
                 />
             </div>
 
-            <div className="md:p-10  p-2.5 pb-2  md:pb-10 py-12">
-                <div className="relative z-30 w-full md:rounded-3xl">
+            <div className="md:p-10   p-2.5 pb-2  md:pb-10 py-12">
+                <div className="relative z-30  w-full md:rounded-3xl">
                     <Swiper
                         modules={[Navigation, Autoplay]}
                         navigation={{
