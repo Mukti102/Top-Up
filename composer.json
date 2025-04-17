@@ -33,7 +33,11 @@
     },
     "autoload": {
         "files": [
-            "app/helpers.php"
+            "app/helpers.php",
+            "app/Helpers/ApiGames.php",
+            "app/Helpers/DigiflazzRequest.php",
+            "app/Helpers/TripayHelper.php",
+            "app/Helpers/TemplateWhatsappHelper.php"
         ],
         "psr-4": {
             "App\\": "app/",

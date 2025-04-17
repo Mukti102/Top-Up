@@ -4,8 +4,8 @@ namespace App\Http\Controllers\payment;
 
 use App\Events\UserLogged;
 use App\Helpers\ApiGames;
-use App\Helpers\digiflazzRequest;
-use App\Helpers\templateWhatsappHelper;
+use App\Helpers\DigiflazzRequest;
+use App\Helpers\TemplateWhatsappHelper;
 use App\Helpers\TripayHelper;
 use App\Http\Controllers\Controller;
 use App\Jobs\SendWa;
@@ -35,7 +35,7 @@ class transactionController extends Controller
     public function __construct()
     {
         $this->tripay = new TripayHelper();
-        $this->digiflazz = new digiflazzRequest();
+        $this->digiflazz = new DigiflazzRequest();
         $this->privateKey = config('tripay.private_key');
     }
 
@@ -208,7 +208,7 @@ class transactionController extends Controller
             ]);
 
             // send wa
-            templateWhatsappHelper::userTransactionMessage($transaction, $expiredTime);
+            TemplateWhatsappHelper::userTransactionMessage($transaction, $expiredTime);
 
             $id = Crypt::encrypt($transaction->id);
 
@@ -291,13 +291,13 @@ class transactionController extends Controller
                         $user = User::find($transaction->user_id);
                         $user->increment("saldo", $transaction->price);
                         SendWa::dispatch($transaction->phone, "Pembayaran Succes Silahkan Cek Saldo Anda Di Web/Aplikasi");
-                        templateWhatsappHelper::adminMessageAfterUserSuccessPayment($transaction);
+                        TemplateWhatsappHelper::adminMessageAfterUserSuccessPayment($transaction);
                         break;
                     } else {
                         $transaction->update(['status_payment' => 'success', 'processed_at' => now()]);
                         $transaction->update(['status' => 'processing']);
-                        templateWhatsappHelper::userSuccessPaymentMessage($transaction);
-                        templateWhatsappHelper::adminMessageAfterUserSuccessPayment($transaction);
+                        TemplateWhatsappHelper::userSuccessPaymentMessage($transaction);
+                        TemplateWhatsappHelper::adminMessageAfterUserSuccessPayment($transaction);
                         break;
                     }
 

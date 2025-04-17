@@ -4,7 +4,7 @@ namespace App\Helpers;
 
 use Illuminate\Support\Facades\Http;
 
-class digiflazzRequest
+class DigiflazzRequest
 {
 
     private $username;
