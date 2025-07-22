@@ -50,7 +50,6 @@ class transactionController extends Controller
 
     public function store(Request $request)
     {
-
         $request->validate([
             'product_id'        => 'required',
             'costumer_number'   => 'required',
@@ -60,6 +59,17 @@ class transactionController extends Controller
             'payment_method_id' => 'required',
             'voucher_id'         => 'nullable'
         ]);
+
+        // save to session or cache costumer number anda email,phone to one variable
+        $costumerData = [
+            'costumer_number' => $request->costumer_number,
+            'email'           => $request->email,
+            'phone'           => $request->phone,
+        ];
+
+        // Simpan ke session
+        session(['costumer_data' => $costumerData]);
+
 
         try {
             $product = Product::with('brand')->findOrFail($request->product_id);
@@ -271,10 +281,14 @@ class transactionController extends Controller
         $tripayReference = $data->reference;
         $status = strtoupper((string) $data->status);
 
+        // update json response
+
 
 
         if ($data->is_closed_payment === 1) {
             $transaction  = Transaction::where('reference_number', $merchantRef)->first();
+
+            
 
             if (!$transaction) {
                 return Response::json([
@@ -320,6 +334,12 @@ class transactionController extends Controller
                         'message' => 'Unrecognized payment status',
                     ]);
             }
+
+            $transaction->update([
+                'response' => json_encode($data),
+                'costumer_data' => session('costumer_data'),
+            ]);
+
             if ($transaction->type == "deposit") {
                 return Response::json(['success' => true]);
             }
